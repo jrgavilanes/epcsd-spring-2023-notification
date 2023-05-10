@@ -1,5 +1,6 @@
 package edu.uoc.epcsd.notification.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.uoc.epcsd.notification.services.NotificationService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ public class KafkaClassListener {
     private NotificationService notificationService;
 
     @KafkaListener(topics = KafkaConstants.PRODUCT_TOPIC + KafkaConstants.SEPARATOR + KafkaConstants.UNIT_AVAILABLE, groupId = "group-1")
-    void productAvailable(ProductMessage productMessage) {
+    void productAvailable(ProductMessage productMessage) throws JsonProcessingException {
         log.trace("productAvailable");
 
         notificationService.notifyProductAvailable(productMessage);
