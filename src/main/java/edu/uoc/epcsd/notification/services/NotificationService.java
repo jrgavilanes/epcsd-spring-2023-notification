@@ -10,6 +10,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 @Log4j2
@@ -22,8 +25,9 @@ public class NotificationService {
         //  email notification for the alerted users by logging a line with INFO level
         log.info("llegaaaaaa: " + productMessage.toString());
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        final String uri = "http://localhost:18082/alert/modelo1/2023-05-30/users";
+        final String uri = "http://localhost:18082/alert/"+ productMessage.getModel() + "/"+ df.format(Calendar.getInstance().getTime()) + "/users";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -32,15 +36,12 @@ public class NotificationService {
         ObjectMapper objectMapper = new ObjectMapper();
 
 
-        List<UserDTO> usersToAlert = objectMapper.readValue(response,
-                new TypeReference<List<UserDTO>>() {
-                });
+        List<UserDTO> usersToAlert = objectMapper.readValue(response, new TypeReference<List<UserDTO>>() {
+        });
 
-        for (var user: usersToAlert) {
+        for (var user : usersToAlert) {
             log.info(user.getEmail());
         }
-
-
 
     }
 
