@@ -23,26 +23,38 @@ public class NotificationService {
 
         // TODO: query User service to get the users that have an alert for the specified product, then simulate the
         //  email notification for the alerted users by logging a line with INFO level
-        log.info("llegaaaaaa: " + productMessage.toString());
+        log.info("new Item: " + productMessage.toString());
 
+        List<UserDTO> usersToAlert = getUsersToAlert(productMessage);
+
+        for (var user : usersToAlert) {
+            sendAlertNotificationMail(user.getEmail(), productMessage.getBrand(), productMessage.getModel());
+        }
+
+    }
+
+    private static List<UserDTO> getUsersToAlert(ProductMessage productMessage) throws JsonProcessingException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-        final String uri = "http://localhost:18082/alert/"+ productMessage.getModel() + "/"+ df.format(Calendar.getInstance().getTime()) + "/users";
+        final String uri = String.format("http://localhost:18082/alert/%s/%s/%s/users",
+                productMessage.getBrand(),
+                productMessage.getModel(),
+                df.format(Calendar.getInstance().getTime()));
 
         RestTemplate restTemplate = new RestTemplate();
-
         String response = restTemplate.getForObject(uri, String.class);
-
         ObjectMapper objectMapper = new ObjectMapper();
-
 
         List<UserDTO> usersToAlert = objectMapper.readValue(response, new TypeReference<List<UserDTO>>() {
         });
 
-        for (var user : usersToAlert) {
-            log.info(user.getEmail());
-        }
+        return usersToAlert;
+    }
 
+    private void sendAlertNotificationMail(String email, String brand, String model) {
+        log.info(String.format("Dear %s, your requested product %s ( %s ) is currently available in our service. Don't miss it out!",
+                email,
+                brand,
+                model));
     }
 
 }
